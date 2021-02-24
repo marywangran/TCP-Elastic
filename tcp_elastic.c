@@ -1,7 +1,7 @@
 #include <linux/module.h>
 #include <net/tcp.h>
 
-#define SCALE	10000
+#define SCALE	100
 struct elastic {
 	u32	ai;
 	u32	maxrtt;
@@ -28,7 +28,7 @@ static void elastic_cong_avoid(struct sock *sk, u32 ack, u32 acked)
 	if (tcp_in_slow_start(tp))
 		tcp_slow_start(tp, acked);
 	else {
-		tp->snd_cwnd_cnt += int_sqrt(tp->snd_cwnd*SCALE*ca->maxrtt/ca->artt);
+		tp->snd_cwnd_cnt += int_sqrt(tp->snd_cwnd*SCALE*SCALE*ca->maxrtt/ca->artt);
 		if (tp->snd_cwnd_cnt >= tp->snd_cwnd*SCALE) {
 			tp->snd_cwnd_cnt = 0;
 			tp->snd_cwnd++;
