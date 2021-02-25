@@ -52,6 +52,18 @@ static void elastic_rtt_calc(struct sock *sk, const struct ack_sample *sample)
 	ca->artt = rtt;
 }
 
+static void tcp_elastic_event(struct sock *sk, enum tcp_ca_event event)
+{
+	struct elastic *ca = inet_csk_ca(sk);
+
+	switch (event) {
+	case CA_EVENT_LOSS:
+		ca->maxrtt = 0;
+	default:
+		/* don't care */
+		break;
+	}
+}
 
 static struct tcp_congestion_ops tcp_elastic __read_mostly = {
 	.init		= elastic_init,
@@ -59,6 +71,7 @@ static struct tcp_congestion_ops tcp_elastic __read_mostly = {
 	.undo_cwnd	= tcp_reno_undo_cwnd,
 	.cong_avoid	= elastic_cong_avoid,
 	.pkts_acked	= elastic_rtt_calc,
+	.cwnd_event	= tcp_elastic_event,
 	.owner		= THIS_MODULE,
 	.name		= "elastic"
 };
